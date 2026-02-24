@@ -1,0 +1,44 @@
+# NametagPlugin Configuration
+
+# The PlaceholderAPI placeholder to use for clan name
+# If this returns empty or the raw placeholder, the clan line is hidden
+clan-placeholder: "%clansLite_clanPrefix%"
+
+# Enable or disable ping display in nametags
+ping-enabled: true
+
+# How often to update nametag values (ping and clan) in seconds
+# Lower values = more responsive but higher server load
+# Recommended: 2-3 seconds
+update-interval: 3
+
+# Whether to show formatted name in TAB list
+# true = Show rank prefix in TAB list
+# false = Show vanilla player name in TAB list
+tab-list-display: true
+
+# Nametag appearance settings
+nametag:
+  # Background opacity (0.0 = transparent, 1.0 = fully opaque)
+  # Set to 0 for no background box
+  background-opacity: 0
+  
+  # Text shadow for better readability
+  text-shadow: true
+  
+  # Scale of the text (1.0 = normal size)
+  scale: 1.0
+  
+  # Vertical offset above player head (in blocks)
+  # Default 0.3 positions it nicely above the head
+  vertical-offset: 0.3
+  
+  # Whether the player name should inherit the rank's color
+  # true = Player name will match the rank prefix color
+  # false = Player name will always be white
+  name-inherits-rank-color: true
+
+  # Whether nametags can be seen through walls (vanilla behavior)
+  # true = Visible through walls like vanilla Minecraft (hidden when sneaking)
+  # false = Only visible with direct line of sight
+  see-through-walls: true

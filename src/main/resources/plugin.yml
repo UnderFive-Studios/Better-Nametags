@@ -1,0 +1,14 @@
+name: NametagPlugin
+version: ${project.version}
+main: com.nametag.NametagPlugin
+api-version: '1.21'
+description: Custom nametag display using TextDisplay entities
+
+# Soft dependencies - plugin works without these but has reduced functionality
+softdepend:
+  - LuckPerms
+  - PlaceholderAPI
+  - SuperVanish
+  - PremiumVanish
+
+author: ItzStevee
