@@ -24,8 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Manages player nametags using TextDisplay entities.
@@ -56,9 +54,6 @@ public class NametagManager {
     // Serializers for converting color codes
     private final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.legacySection();
     
-    // Pattern to extract the last color code from a string
-    private static final Pattern LAST_COLOR_PATTERN = Pattern.compile(".*([§&][0-9a-fk-or])");
-
     public NametagManager(NametagPlugin plugin) {
         this.plugin = plugin;
         this.NAMETAG_KEY = new NamespacedKey(plugin, "nametag");
@@ -447,36 +442,74 @@ public class NametagManager {
         
         // Normalize color codes
         text = text.replace('&', '§');
-        
-        // Find the last color code
-        Matcher matcher = LAST_COLOR_PATTERN.matcher(text);
-        if (matcher.find()) {
-            String colorCode = matcher.group(1);
-            char code = colorCode.charAt(1);
-            
-            // Map color code to TextColor
-            return switch (Character.toLowerCase(code)) {
-                case '0' -> NamedTextColor.BLACK;
-                case '1' -> NamedTextColor.DARK_BLUE;
-                case '2' -> NamedTextColor.DARK_GREEN;
-                case '3' -> NamedTextColor.DARK_AQUA;
-                case '4' -> NamedTextColor.DARK_RED;
-                case '5' -> NamedTextColor.DARK_PURPLE;
-                case '6' -> NamedTextColor.GOLD;
-                case '7' -> NamedTextColor.GRAY;
-                case '8' -> NamedTextColor.DARK_GRAY;
-                case '9' -> NamedTextColor.BLUE;
-                case 'a' -> NamedTextColor.GREEN;
-                case 'b' -> NamedTextColor.AQUA;
-                case 'c' -> NamedTextColor.RED;
-                case 'd' -> NamedTextColor.LIGHT_PURPLE;
-                case 'e' -> NamedTextColor.YELLOW;
-                case 'f' -> NamedTextColor.WHITE;
-                default -> null;
-            };
+
+        TextColor lastColor = null;
+        for (int i = 0; i < text.length() - 1; i++) {
+            if (text.charAt(i) != '§') {
+                continue;
+            }
+
+            char code = Character.toLowerCase(text.charAt(i + 1));
+
+            // Handle hex color syntax: §x§R§R§G§G§B§B
+            if (code == 'x' && i + 13 < text.length()) {
+                StringBuilder hex = new StringBuilder(6);
+                boolean validHex = true;
+
+                for (int j = i + 2; j <= i + 12; j += 2) {
+                    if (text.charAt(j) != '§') {
+                        validHex = false;
+                        break;
+                    }
+
+                    char hexChar = text.charAt(j + 1);
+                    if (Character.digit(hexChar, 16) == -1) {
+                        validHex = false;
+                        break;
+                    }
+
+                    hex.append(hexChar);
+                }
+
+                if (validHex) {
+                    lastColor = TextColor.fromHexString("#" + hex);
+                    i += 12; // Skip the processed hex sequence
+                }
+                continue;
+            }
+
+            TextColor parsed = legacyCodeToColor(code);
+            if (parsed != null) {
+                lastColor = parsed;
+            } else if (code == 'r') {
+                // Reset means following text becomes white by default
+                lastColor = NamedTextColor.WHITE;
+            }
         }
-        
-        return null;
+
+        return lastColor;
+    }
+
+    private TextColor legacyCodeToColor(char code) {
+        return switch (code) {
+            case '0' -> NamedTextColor.BLACK;
+            case '1' -> NamedTextColor.DARK_BLUE;
+            case '2' -> NamedTextColor.DARK_GREEN;
+            case '3' -> NamedTextColor.DARK_AQUA;
+            case '4' -> NamedTextColor.DARK_RED;
+            case '5' -> NamedTextColor.DARK_PURPLE;
+            case '6' -> NamedTextColor.GOLD;
+            case '7' -> NamedTextColor.GRAY;
+            case '8' -> NamedTextColor.DARK_GRAY;
+            case '9' -> NamedTextColor.BLUE;
+            case 'a' -> NamedTextColor.GREEN;
+            case 'b' -> NamedTextColor.AQUA;
+            case 'c' -> NamedTextColor.RED;
+            case 'd' -> NamedTextColor.LIGHT_PURPLE;
+            case 'e' -> NamedTextColor.YELLOW;
+            case 'f' -> NamedTextColor.WHITE;
+            default -> null;
+        };
     }
 
     /**
