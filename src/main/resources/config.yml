@@ -1,4 +1,5 @@
 # NametagPlugin Configuration
+# If you see duplicate nametags above players, disable other nametag-related plugins/mods.
 
 # The PlaceholderAPI placeholder to use for clan name
 # If this returns empty or the raw placeholder, the clan line is hidden
